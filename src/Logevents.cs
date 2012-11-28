@@ -1,0 +1,470 @@
+using System;
+using System.Xml;		// for XMLTextWriter and XMLTextReader
+using System.IO;		// for StreamReader and StreamWriter
+
+// SAS AddIns namespace
+using SAS.Shared.AddIns;
+using log4net;
+
+namespace SASPress.Examples.Lifecycle
+{
+	/// <summary>
+	/// A custom task for use in SAS Enterprise Guide or the SAS Add-In for Microsoft Office
+	/// </summary>
+	public class Logevents : 
+		SAS.Shared.AddIns.ISASTaskAddIn, 
+		SAS.Shared.AddIns.ISASTaskDescription, 
+		SAS.Shared.AddIns.ISASTask
+	{
+		// change these values for your task
+		#region private members for boilerplate values
+		
+		// replace these boilerplate values with values that apply to your task
+		private string sLabel = "Log Task API calls";
+		private string sAddInName = "Log Task API calls";
+		private string sAddInDescription = "This task logs each API call from the application";
+		private string sProductsReq = "BASE";
+		private string sProductsOpt = "";
+		private string sTaskName= "Log Task API calls";
+		private string sCategory = "SAS Press Examples";
+		private string sTaskDescription = "This task logs each API call from the application";
+		private string sFriendlyName = "Log Task API calls";
+		private string sWhatIsDescription = "This task logs each API call from the application";
+		
+		// create a logger
+		// to create a logger, you must add a reference to the log4net.dll,
+		// which you can find in the application directory 
+		// (where Enterprise Guide is installed, for example)
+		static log4net.ILog _logger = log4net.LogManager.GetLogger(typeof(Logevents));
+		#endregion
+		
+		// store reference to the application Consumer object
+		private ISASTaskConsumer consumer = null;
+
+		public Logevents()
+		{
+			_logger.Info("API: In task constructor");
+		}
+
+		#region ISASTaskAddIn Members
+
+		public bool VisibleInManager
+		{
+			get
+			{		
+				_logger.Info("API: ISASTaskAddIn.VisibleInManager - get()");
+				return true;
+			}
+		}
+
+		public string AddInName
+		{
+			get
+			{	
+				_logger.Info("API: ISASTaskAddIn.AddInName - get()");
+				return sAddInName;
+			}
+		}
+
+		public void Disconnect()
+		{
+			// perform cleanup tasks
+			_logger.Info("API: ISASTaskAddIn.Disconnect()");
+			consumer = null;
+		}
+
+		public int Languages(out string[] Items)
+		{		
+			_logger.Info("API: ISASTaskAddIn.Languages(out string[] items)");
+			// by default, we support English 
+			// Add more languages as needed
+			Items = new string[] {"en-US"};
+			return 1;
+		}
+
+		public string AddInDescription
+		{
+			get
+			{			
+				_logger.Info("API: ISASTaskAddIn.AddInDescription - get()");
+				return sAddInDescription;
+			}
+		}
+
+		public bool Connect(ISASTaskConsumer Consumer)
+		{
+			_logger.InfoFormat("API: ISASTaskAddIn.Connect(ISASTaskConsumer consumer): application launched: {0}", System.Environment.CommandLine);
+
+			// perform any initialization needed when the application connects
+			consumer = Consumer;
+	
+			// this is a good time to get the consumer.ActiveData, if your task requires it.
+
+			return true;
+		}
+
+		public string Language
+		{
+			set
+			{
+				_logger.InfoFormat("API: ISASTaskAddIn.Language - set({0})",value);
+
+				// if you support multiple languages, add handler here
+			}
+		}
+
+		#endregion
+
+		#region ISASTaskDescription Members
+
+		public string ProductsRequired
+		{
+			get
+			{
+
+				_logger.Info("API: ISASTaskDescription.ProductsRequired - get()");
+				// What SAS products are required for this task to run?
+				return sProductsReq;
+			}
+		}
+
+		public bool StandardCategory
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.StandardCategory - get()");
+				// used typically only by SAS-supplied tasks			
+				return false;
+			}
+		}
+
+		public bool GeneratesListOutput
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.GeneratesListOutput - get()");
+				// Does this task generate ODS-style output?
+				return true;
+			}
+		}
+
+		public string TaskName
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.TaskName - get()");
+				return sTaskName;
+			}
+		}
+
+		public string Validation
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.Validation - get()");
+				// Add a validation string that makes sense for your organization
+				// For example, "dev", "test", or "prod"
+				return "";
+			}
+		}
+
+		public string TaskCategory
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.TaskCategory - get()");
+				// PLACEHOLDER: replace with your own category
+				return sCategory;
+			}
+		}
+
+		public string IconAssembly
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.IconAssembly - get()");
+				// return the full path/name of this assembly, assuming that the
+				// icon is embedded within the assembly
+				return System.Reflection.Assembly.GetExecutingAssembly().Location;
+			}
+		}
+
+		public string Clsid
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.Clsid - get()");
+				// ClassID GUID generated by the template
+				return "3FD4AB19-10EF-4292-9380-B9DA371DFAAE";
+			}
+		}
+
+		public SAS.Shared.AddIns.ShowType TaskType
+		{
+			get
+			{				
+				_logger.Info("API: ISASTaskDescription.TaskType - get()");
+				return SAS.Shared.AddIns.ShowType.Wizard;
+			}
+		}
+
+		public bool RequiresData
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.RequiresData - get()");
+				// Does your task require input data from the application?
+				return false;
+			}
+		}
+
+		public string IconName
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.IconName - get()");
+				// return the name of the icon within this assembly
+				// including namespace qualifiers
+				return "SASPress.Examples.Lifecycle.CustomTask.ico";
+			}
+		}
+
+		public int MinorVersion
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.MinorVersion - get()");
+				return 0;
+			}
+		}
+
+		public int MajorVersion
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.MajorVersion - get()");
+				return 1;
+			}
+		}
+
+		public int NumericColsRequired
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.NumericColsRequired - get()");
+				// How many numeric variables are required in input data, if any?
+				return 0;
+			}
+		}
+
+		public string TaskDescription
+		{
+			get
+			{				
+				_logger.Info("API: ISASTaskDescription.TaskDescription - get()");
+				return sTaskDescription;
+			}
+		}
+
+		public bool GeneratesSasCode
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.GeneratesSasCode - get()");
+				// Return true if your task generates SAS program code
+				return true;
+			}
+		}
+
+		public string FriendlyName
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.FriendlyName - get()");
+				// Replace with a user-friendly name for your task
+				return sFriendlyName;
+			}
+		}
+
+		public string ProcsUsed
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.ProcsUsed - get()");
+				// What SAS procedures are used in this task?
+				return "";
+			}
+		}
+
+		public string WhatIsDescription
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.WhatIsDescription - get()");
+				// Longer description for your task
+				return sWhatIsDescription;
+			}
+		}
+
+		public string ProductsOptional
+		{
+			get
+			{
+				_logger.Info("API: ISASTaskDescription.ProductsOptional - get()");
+				// What SAS products are optionally used by this task?
+				return sProductsOpt;
+			}
+		}
+
+		#endregion
+
+		#region ISASTask Members
+
+		public string RunLog
+		{
+			get
+			{
+				_logger.Info("API: ISASTask.RunLog - get()");
+				// if your task does not generate SAS code, you can supply your own
+				// log text to record the work completed.
+				return "";
+			}
+		}
+
+		// manage the state of the task when serializing to and from the project
+		// makes use of some helper methods: WriteXML and ReadXML
+		public string XmlState
+		{
+			get
+			{
+				_logger.Info("API: ISASTask.XmlState - get()");
+				return WriteXML();
+			}
+			set
+			{
+				_logger.Info("API: ISASTask.XmlState - set()");
+				ReadXML(value);
+			}
+		}
+
+		public void Terminate()
+		{
+			_logger.Info("API: ISASTask.Terminate()");
+			// Cleanup as needed
+		}
+
+		public SAS.Shared.AddIns.OutputData OutputDataInfo(int Index, out string Source, out string Label)
+		{
+			_logger.InfoFormat("API: ISASTask.OutputDataInfo(int Index={0}, out string source, out string label",Index);
+			// no output data created
+			Source = "TEST.TEST";
+			Label = "TEST";
+			return SAS.Shared.AddIns.OutputData.Libref;
+
+		}
+
+		public string SasCode
+		{
+			get
+			{	
+				_logger.Info("API: ISASTask.SasCode - get()");
+				// Read the code file from an embedded SAS file
+				// If there are any substitutions or parameters to set for the SAS program,
+				// modify the string accordingly before returning it.
+				string codetemplate = Global.ReadFileFromAssembly("SASPress.Examples.Lifecycle.CustomTask.sas");
+				return codetemplate;
+			}
+		}
+
+		public bool Initialize()
+		{
+			// initialize this instance of your task
+			_logger.Info("API: ISASTask.Initialize()");
+			return true;
+		}
+
+		public SAS.Shared.AddIns.ShowResult Show(System.Windows.Forms.IWin32Window Owner)
+		{
+			_logger.InfoFormat("API: ISASTask.Show(IWin32Window Owner={0})",AppDomain.CurrentDomain.FriendlyName);
+			// Show the default form for this custom task
+			LogeventsForm dlg = new LogeventsForm();
+			dlg.Text = sLabel;
+
+			_logger.InfoFormat("API: in Show(), showing task form");
+			if (dlg.ShowDialog()==System.Windows.Forms.DialogResult.OK)
+			{
+				_logger.InfoFormat("API: leaving Show(), task form closed with OK action");
+				return SAS.Shared.AddIns.ShowResult.RunNow;
+			}
+			else
+			{
+				_logger.InfoFormat("API: leaving Show(), task form closed with Cancel action");
+				return SAS.Shared.AddIns.ShowResult.Canceled;
+			}
+		}
+
+		// The label this task is known by within a project
+		public string Label
+		{
+			get
+			{			
+				_logger.Info("API: ISASTask.Label - get()");
+				return sLabel;
+			}
+			set
+			{
+				_logger.InfoFormat("API: ISASTask.Label - set('{0}')",value);
+				sLabel = value;
+			}
+		}
+
+		public int OutputDataCount
+		{
+			get
+			{				
+				// does this task create any output data sets?
+				_logger.Info("API: ISASTask.OutputDataCount - get()");
+				return 1;
+			}
+		}
+
+		#endregion
+
+		// Augment these methods to save and retrieve the state of your task
+		#region Helper methods for serialization 
+
+		private string WriteXML()
+		{
+			StringWriter sw = new StringWriter();
+
+			XmlTextWriter writer = new XmlTextWriter(sw);
+			writer.WriteStartElement("Logevents");
+			// add more WriteElement calls here to save the state of your task
+			writer.WriteEndElement();
+			writer.Close();
+
+			return sw.ToString();
+		}
+
+		private void ReadXML(string xml)
+		{
+			if (xml!=null && xml.Length>0)
+			{
+				try
+				{
+					StringReader sr = new StringReader(xml);
+					XmlTextReader reader = new XmlTextReader(sr);
+					reader.ReadStartElement("Logevents");
+					// add more ReadElement calls here to read in the state of your task
+					reader.ReadEndElement();
+					reader.Close();
+				}
+				catch
+				{
+				}
+			}
+		}
+
+		#endregion
+	}
+}
