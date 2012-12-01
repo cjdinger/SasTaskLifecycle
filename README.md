@@ -24,7 +24,7 @@ three phases:
 
 Each of these phases represents a different life cycle for the task. Your 
 implementation of the custom task APIs is usually encapsulated in a 
-single .NET class. Think of the task’s life cycle as the sequence of 
+single .NET class. Think of the task's life cycle as the sequence of 
 property and method calls that occur within this single .NET class, from 
 the time the class is constructed (using its default .NET constructor) 
 until the time the class is released.
